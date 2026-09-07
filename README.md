@@ -113,7 +113,7 @@ src/scripts/deploy_hub_app.py           Model-driven app registration
 src/scripts/deploy_saleshub_navigation.py  Adds the hub to Sales Hub sitemap
 src/scripts/dv.py                       Dataverse Web API helper (token + REST wrapper)
 tools/                                  Diagram generators (Azure OpenAI image models)
-solution/                               Exported managed/unmanaged solution (see Releases)
+solution/                               Packaged solution export v1.0.0.2 + import guide
 docs/images/                            Architecture and UI images
 ```
 
