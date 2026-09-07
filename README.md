@@ -6,6 +6,13 @@ Type any company name and six specialised AI agents run in parallel against live
 
 ![LSEG Intelligence Hub UI](docs/images/ui-screenshot.png)
 
+> [!WARNING]
+> **Demo-grade software — use at your own risk.**
+>
+> This project is a **proof-of-concept demonstration**. It has **not** been hardened, security-reviewed, performance-tested, or validated for production use. It is provided **as-is, without warranty of any kind**.
+>
+> Do not deploy this to a production environment, or use it to make real lending, credit, pricing, or investment decisions, without conducting your own independent review, security assessment, and testing. AI-generated output in this demo is **not validated for accuracy** and may be incomplete or wrong — see [Known limitations](#known-limitations). Any use is entirely at your own risk, and you are solely responsible for the consequences.
+
 > [!IMPORTANT]
 > **Unofficial demo.** This is a personal technical demonstration. It is not a product, not supported, and not affiliated with or endorsed by London Stock Exchange Group plc or Microsoft Corporation. "LSEG" and related marks belong to their respective owners. No LSEG data, content, or credentials are included in this repository — you must supply your own licensed connection.
 
@@ -21,6 +28,34 @@ Type any company name and six specialised AI agents run in parallel against live
 | **Trade Intelligence** | What trade-finance and supply-chain flows exist? |
 | **Account Planning** | What is the relationship strategy and coverage plan? |
 | **RM Orchestrator** | Fuses all of the above into a structured JSON verdict + next best actions. |
+
+---
+
+## Walkthrough
+
+**1. Enter any company name.** Free text — no entity picker, no LEI lookup, no reference-data dependency.
+
+![Company selection](docs/images/01-company-selection.png)
+
+**2. Six agents run in parallel.** Each one queries LSEG market data through its own MCP tool bindings.
+
+![Six agents running](docs/images/02-six-agents-running.png)
+
+**3. Outcomes are assembled.** The orchestrator fuses all six findings into a single structured verdict.
+
+![Outcomes ready](docs/images/03-outcomes-ready.png)
+
+**4. Executive dashboard.** Bankable wallet, risk posture, pricing, and coverage strategy in one view.
+
+![Executive dashboard](docs/images/04-executive-dashboard.png)
+
+**5. Deep insights and next best actions.** Concrete, time-bound recommendations for the relationship manager.
+
+![Deep insights and actions](docs/images/05-deep-insights-actions.png)
+
+**6. Evidence and explainability.** Every claim traces back to the underlying LSEG data point that produced it.
+
+![Evidence and explainability](docs/images/06-evidence-explainability.png)
 
 ---
 
@@ -83,6 +118,12 @@ docs/images/                            Architecture and UI images
 ```
 
 ---
+
+## Getting started
+
+The fastest path is to **import the solution** — see [`solution/`](solution/) for the packaged
+export (v1.0.0.2) and import instructions. Alternatively, deploy from source with the scripts
+below.
 
 ## Prerequisites
 
