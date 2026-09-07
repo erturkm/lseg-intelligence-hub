@@ -106,6 +106,7 @@ Each agent's raw text is stored in its own column. `lseg_resultjson` carries the
 
 ```
 src/webresource/intelligence-hub.html   Single-file UI (HTML + CSS + JS, no build step)
+src/webresource/rm-dashboard.html       RM portfolio overview dashboard (amCharts 5)
 src/scripts/deploy_orchestration.py     Creates/updates the six-agent Power Automate flow
 src/scripts/deploy_agents.py            Provisions the six Copilot Studio agents
 src/scripts/deploy_hub_assets.py        Creates the lseg_intelligenceanalysis table + web resources
@@ -116,6 +117,10 @@ tools/                                  Diagram generators (Azure OpenAI image m
 solution/                               Packaged solution export v1.0.0.2 + import guide
 docs/images/                            Architecture and UI images
 ```
+
+> [!NOTE]
+> The files under `src/webresource/` are exact copies of what ships in the v1.0.0.2 solution,
+> so the source and the packaged export never drift apart.
 
 ---
 
@@ -194,7 +199,17 @@ To diagnose, inspect the run's `DynamicPlanReceived` → `value.steps`:
 **Third-party calls from the browser.** For cosmetic company logos only, the UI calls
 `autocomplete.clearbit.com`, `icons.duckduckgo.com`, and `google.com/s2/favicons`. These receive
 the company name or domain being viewed. Remove these calls if that is unacceptable in your
-environment — nothing else depends on them.
+environment — nothing else depends on them. The RM dashboard also loads **amCharts 5** from
+`cdn.amcharts.com`; amCharts is commercially licensed for business use — review their
+[licensing terms](https://www.amcharts.com/online-store/) before deploying it.
+
+**`rm-dashboard.html` contains two hardcoded environment-specific GUIDs** that you must change
+after import, or it will not work in your tenant:
+
+| Location | Value | What to replace it with |
+|---|---|---|
+| `const APP_ID = "..."` | Sales Hub model-driven app ID | Your own app ID |
+| `"customerid_account@odata.bind": "/accounts(...)"` | A demo account record | An account in your org |
 
 ---
 

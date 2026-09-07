@@ -1,0 +1,2640 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>RM Portfolio Overview</title>
+
+  <script src="ClientGlobalContext.js.aspx"></script>
+  <script src="https://cdn.amcharts.com/lib/5/index.js"></script>
+  <script src="https://cdn.amcharts.com/lib/5/xy.js"></script>
+  <script src="https://cdn.amcharts.com/lib/5/percent.js"></script>
+  <script src="https://cdn.amcharts.com/lib/5/radar.js"></script>
+  <script src="https://cdn.amcharts.com/lib/5/themes/Animated.js"></script>
+
+  <style>
+    :root {
+      --bg: #f4f7fb;
+      --panel: #ffffff;
+      --text: #0f172a;
+      --muted: #64748b;
+      --border: #dbe5f1;
+      --accent: #1d4ed8;
+      --accent2: #0ea5e9;
+      --good: #10b981;
+      --warn: #f59e0b;
+      --bad: #ef4444;
+      --purple: #7c3aed;
+      --shadow: 0 10px 25px rgba(15, 23, 42, 0.08);
+      --radius: 18px;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: Inter, "Segoe UI", Arial, sans-serif;
+      background: linear-gradient(180deg, #eef4fb 0%, #f7faff 100%);
+      color: var(--text);
+      overflow: hidden;
+    }
+
+    .main {
+      display: grid;
+      grid-template-rows: 76px 1fr;
+      height: 100vh;
+      width: 100vw;
+      overflow: hidden;
+    }
+
+    .topbar {
+      display: grid;
+      grid-template-columns: 1.35fr 0.8fr auto;
+      align-items: center;
+      gap: 16px;
+      padding: 14px 20px;
+      background: rgba(255,255,255,0.86);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid rgba(15,23,42,0.06);
+    }
+
+    .search {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 12px 16px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      box-shadow: var(--shadow);
+      min-width: 0;
+    }
+
+    .search input,
+    .toolbar-select {
+      border: none;
+      outline: none;
+      width: 100%;
+      font-size: 14px;
+      background: transparent;
+      color: var(--text);
+    }
+
+    .toolbar-card {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      height: 48px;
+      display: flex;
+      align-items: center;
+      padding: 0 14px;
+      box-shadow: var(--shadow);
+      gap: 10px;
+    }
+
+    .top-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      justify-self: end;
+    }
+
+    .icon-btn,
+    .primary-btn,
+    .secondary-btn {
+      border: 1px solid var(--border);
+      background: #fff;
+      box-shadow: var(--shadow);
+      cursor: pointer;
+      transition: 0.2s ease;
+    }
+
+    .icon-btn {
+      width: 42px;
+      height: 42px;
+      border-radius: 14px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 17px;
+    }
+
+    .primary-btn,
+    .secondary-btn {
+      height: 42px;
+      border-radius: 14px;
+      padding: 0 14px;
+      font-size: 12px;
+      font-weight: 700;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      white-space: nowrap;
+    }
+
+    .primary-btn {
+      background: linear-gradient(135deg, #1d4ed8, #0ea5e9);
+      color: #fff;
+      border-color: transparent;
+    }
+
+    .secondary-btn {
+      color: var(--text);
+    }
+
+    .icon-btn:hover,
+    .primary-btn:hover,
+    .secondary-btn:hover {
+      transform: translateY(-1px);
+    }
+
+    .avatar {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: linear-gradient(135deg, #ffffff, #f2f7ff);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 6px 8px 6px 6px;
+      box-shadow: var(--shadow);
+    }
+
+    .avatar-badge {
+      width: 34px;
+      height: 34px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, #2563eb, #7c3aed);
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .content {
+      padding: 18px 18px 22px;
+      overflow-y: auto;
+      height: calc(100vh - 76px);
+      scroll-behavior: smooth;
+    }
+
+    .hero {
+      background: linear-gradient(135deg, #0f3b73 0%, #155eef 58%, #0ea5e9 100%);
+      border-radius: 24px;
+      padding: 20px 22px;
+      color: #fff;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 18px 40px rgba(21, 94, 239, 0.22);
+      margin-bottom: 16px;
+    }
+
+    .hero::after {
+      content: "";
+      position: absolute;
+      right: -40px;
+      top: -35px;
+      width: 220px;
+      height: 220px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(255,255,255,0.18), rgba(255,255,255,0));
+    }
+
+    .hero h1 {
+      margin: 0 0 6px 0;
+      font-size: 28px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      position: relative;
+      z-index: 1;
+    }
+
+    .hero p {
+      margin: 0 0 16px 0;
+      max-width: 920px;
+      color: rgba(255,255,255,0.9);
+      font-size: 13px;
+      line-height: 1.5;
+      position: relative;
+      z-index: 1;
+    }
+
+    .hero-metrics {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .hero-pill {
+      background: rgba(255,255,255,0.12);
+      border: 1px solid rgba(255,255,255,0.14);
+      backdrop-filter: blur(8px);
+      border-radius: 14px;
+      padding: 10px 14px;
+      min-width: 130px;
+    }
+
+    .hero-pill .label {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: rgba(255,255,255,0.78);
+    }
+
+    .hero-pill .value {
+      margin-top: 5px;
+      font-weight: 800;
+      font-size: 22px;
+    }
+
+    .loading-note {
+      margin-top: 10px;
+      font-size: 11px;
+      color: rgba(255,255,255,0.85);
+      position: relative;
+      z-index: 1;
+    }
+
+    .section-grid {
+      display: grid;
+      grid-template-columns: repeat(12, 1fr);
+      gap: 14px;
+      min-width: 1180px;
+    }
+
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .panel-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 14px 16px 10px;
+    }
+
+    .panel-title-wrap {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+
+    .panel-title {
+      font-size: 15px;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .panel-subtitle {
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .chip {
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 700;
+      border: 1px solid var(--border);
+      background: #f8fbff;
+      color: var(--accent);
+      white-space: nowrap;
+    }
+
+    .panel-body { padding: 0 14px 14px; }
+
+    .span-3 { grid-column: span 3; }
+    .span-4 { grid-column: span 4; }
+    .span-5 { grid-column: span 5; }
+    .span-6 { grid-column: span 6; }
+    .span-7 { grid-column: span 7; }
+    .span-8 { grid-column: span 8; }
+    .span-12 { grid-column: span 12; }
+
+    .mini-stat-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+    }
+
+    .mini-stat {
+      background: linear-gradient(180deg, #ffffff, #f7fbff);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 14px;
+      position: relative;
+      overflow: hidden;
+      min-height: 94px;
+    }
+
+    .mini-stat::after {
+      content: "";
+      position: absolute;
+      right: -10px;
+      bottom: -10px;
+      width: 70px;
+      height: 70px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(37,99,235,0.09), rgba(37,99,235,0));
+    }
+
+    .mini-label {
+      color: var(--muted);
+      font-size: 12px;
+      margin-bottom: 8px;
+    }
+
+    .mini-value {
+      font-size: 24px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      position: relative;
+      z-index: 1;
+    }
+
+    .mini-delta {
+      margin-top: 6px;
+      font-size: 12px;
+      font-weight: 700;
+      position: relative;
+      z-index: 1;
+    }
+
+    .good { color: var(--good); }
+    .warn { color: var(--warn); }
+    .bad { color: var(--bad); }
+
+    .list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      max-height: 360px;
+      overflow: auto;
+      padding-right: 2px;
+    }
+
+    .item {
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 12px;
+      background: linear-gradient(180deg, #ffffff, #fbfdff);
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 10px;
+      transition: 0.2s ease;
+    }
+
+    .item:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 8px 18px rgba(15,23,42,0.08);
+      border-color: #cbdaf0;
+    }
+
+    .item-left {
+      display: flex;
+      gap: 10px;
+      min-width: 0;
+    }
+
+    .item-strip {
+      width: 4px;
+      border-radius: 999px;
+      background: var(--accent);
+      flex-shrink: 0;
+    }
+
+    .item-main {
+      min-width: 0;
+    }
+
+    .item-title {
+      font-size: 14px;
+      font-weight: 800;
+      margin-bottom: 3px;
+    }
+
+    .item-meta, .item-desc {
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1.4;
+    }
+
+    .item-desc {
+      margin-top: 4px;
+    }
+
+    .badge-col {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 8px;
+      justify-content: space-between;
+    }
+
+    .badge {
+      font-size: 11px;
+      font-weight: 700;
+      padding: 6px 8px;
+      border-radius: 10px;
+      white-space: nowrap;
+    }
+
+    .badge.red { background: #fee2e2; color: #b91c1c; }
+    .badge.green { background: #dcfce7; color: #166534; }
+    .badge.amber { background: #fef3c7; color: #92400e; }
+    .badge.blue { background: #dbeafe; color: #1d4ed8; }
+    .badge.purple { background: #ede9fe; color: #6d28d9; }
+
+    .time {
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    .item-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 6px;
+      margin-top: 8px;
+      flex-wrap: wrap;
+    }
+
+    .open-btn,
+    .mini-open-btn,
+    .ghost-btn {
+      background: #fff;
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 11px;
+      font-weight: 700;
+      transition: 0.2s ease;
+    }
+
+    .open-btn,
+    .ghost-btn {
+      padding: 7px 10px;
+    }
+
+    .mini-open-btn {
+      padding: 5px 8px;
+    }
+
+    .open-btn:hover,
+    .mini-open-btn:hover,
+    .ghost-btn:hover {
+      transform: translateY(-1px);
+      background: #f8fbff;
+    }
+
+    .ghost-btn.active-ai {
+      background: linear-gradient(135deg, #dbeafe, #eef6ff);
+      color: var(--accent);
+      border-color: #bfdbfe;
+    }
+
+    .chart-box {
+      height: 300px;
+      width: 100%;
+    }
+
+    .chart-box.small { height: 220px; }
+    .chart-box.tall { height: 360px; }
+
+    .news-ticker {
+      display: grid;
+      grid-template-columns: 1.15fr 1fr;
+      gap: 12px;
+    }
+
+    .impact-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .impact-card {
+      border-radius: 16px;
+      border: 1px solid var(--border);
+      padding: 14px;
+      background: linear-gradient(180deg, #fff, #f9fbff);
+    }
+
+    .impact-card .top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .impact-card .big {
+      font-size: 22px;
+      font-weight: 800;
+      margin-bottom: 4px;
+    }
+
+    .impact-bars {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .impact-row {
+      display: grid;
+      grid-template-columns: 130px 1fr 62px;
+      align-items: center;
+      gap: 10px;
+      font-size: 12px;
+    }
+
+    .bar-track {
+      height: 9px;
+      border-radius: 999px;
+      background: #eaf0f8;
+      overflow: hidden;
+    }
+
+    .bar-fill {
+      height: 100%;
+      border-radius: 999px;
+      background: linear-gradient(90deg, #1d4ed8, #0ea5e9);
+    }
+
+    .calendar-strip {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 12px;
+    }
+
+    .day-card {
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      min-height: 118px;
+      padding: 12px;
+      background: linear-gradient(180deg, #fff, #fbfdff);
+    }
+
+    .day-title {
+      font-size: 12px;
+      font-weight: 800;
+      color: var(--muted);
+      margin-bottom: 10px;
+    }
+
+    .appt {
+      border-radius: 12px;
+      padding: 8px 10px;
+      margin-bottom: 8px;
+      font-size: 12px;
+      border: 1px solid transparent;
+      transition: 0.2s ease;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .appt.blue { background: #e8f1ff; border-color: #c9dcff; color: #1e40af; }
+    .appt.green { background: #e8fbf0; border-color: #c6f2d7; color: #166534; }
+    .appt.amber { background: #fff4dd; border-color: #ffe3a3; color: #92400e; }
+    .appt.purple { background: #f3ecff; border-color: #dfd0ff; color: #6d28d9; }
+
+    .toggle-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 12px;
+      flex-wrap: wrap;
+    }
+
+    .toggle-chip {
+      padding: 8px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: #fff;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--muted);
+      cursor: pointer;
+    }
+
+    .toggle-chip.active {
+      background: linear-gradient(135deg, #dbeafe, #eef6ff);
+      color: var(--accent);
+      border-color: #bfdbfe;
+    }
+
+    .footer-note {
+      font-size: 11px;
+      color: var(--muted);
+      padding-top: 6px;
+    }
+
+    .score-grid {
+      display: grid;
+      grid-template-columns: 1.05fr 0.95fr;
+      gap: 12px;
+    }
+
+    .score-summary {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .score-card {
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      background: linear-gradient(180deg, #fff, #f9fbff);
+      padding: 14px;
+    }
+
+    .score-card .label {
+      font-size: 12px;
+      color: var(--muted);
+      margin-bottom: 8px;
+    }
+
+    .score-card .value {
+      font-size: 24px;
+      font-weight: 800;
+    }
+
+    .score-badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 6px 8px;
+      border-radius: 10px;
+      font-size: 11px;
+      font-weight: 800;
+      margin-top: 8px;
+    }
+
+    .score-high { background: #fee2e2; color: #b91c1c; }
+    .score-medium { background: #fef3c7; color: #92400e; }
+    .score-low { background: #dcfce7; color: #166534; }
+
+    .score-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      max-height: 315px;
+      overflow: auto;
+    }
+
+    .score-item {
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 12px;
+      background: linear-gradient(180deg, #ffffff, #fbfdff);
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 12px;
+    }
+
+    .score-item .title {
+      font-size: 14px;
+      font-weight: 800;
+      margin-bottom: 4px;
+    }
+
+    .score-item .sub {
+      font-size: 12px;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+
+    .score-reasons {
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1.45;
+    }
+
+    .score-right {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 8px;
+      min-width: 100px;
+    }
+
+    .score-number {
+      font-size: 24px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+    }
+
+    .score-action {
+      font-size: 11px;
+      font-weight: 800;
+      padding: 6px 8px;
+      border-radius: 10px;
+      background: #eef6ff;
+      color: var(--accent);
+      border: 1px solid #bfdbfe;
+    }
+
+    .toast {
+      position: fixed;
+      right: 18px;
+      bottom: 18px;
+      background: #0f172a;
+      color: #fff;
+      padding: 12px 14px;
+      border-radius: 14px;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+      font-size: 13px;
+      display: none;
+      z-index: 100;
+      max-width: 360px;
+    }
+
+    .toast.show {
+      display: block;
+    }
+
+    ::-webkit-scrollbar { width: 10px; height: 10px; }
+    ::-webkit-scrollbar-thumb { background: #cdd9e7; border-radius: 999px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+
+    @media (max-width: 1450px) {
+      .mini-stat-grid { grid-template-columns: repeat(2, 1fr); }
+      .impact-grid { grid-template-columns: 1fr; }
+      .news-ticker { grid-template-columns: 1fr; }
+      .score-grid { grid-template-columns: 1fr; }
+      .score-summary { grid-template-columns: 1fr; }
+    }
+
+    .top-intel {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      padding: 16px 18px;
+      box-shadow: var(--shadow);
+      margin-bottom: 16px;
+      overflow: hidden;
+    }
+
+    .top-intel-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .top-intel-title {
+      font-size: 18px;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .top-intel-subtitle {
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .top-intel-track {
+      overflow: hidden;
+      position: relative;
+      margin-bottom: 12px;
+    }
+
+    .top-intel-row {
+      display: flex;
+      gap: 12px;
+      width: max-content;
+      animation: intelScroll 34s linear infinite;
+      padding-right: 12px;
+    }
+
+    .top-intel-track:hover .top-intel-row {
+      animation-play-state: paused;
+    }
+
+    @keyframes intelScroll {
+      from { transform: translateX(0); }
+      to { transform: translateX(-50%); }
+    }
+
+    .intel-card {
+      width: 320px;
+      min-height: 108px;
+      background: linear-gradient(180deg, #ffffff, #f8fbff);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .intel-meta {
+      font-size: 11px;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+
+    .intel-title {
+      font-size: 14px;
+      font-weight: 800;
+      line-height: 1.35;
+      margin-bottom: 8px;
+    }
+
+    .intel-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .suggested-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .suggested-pill {
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      background: linear-gradient(180deg, #ffffff, #f7fbff);
+      padding: 10px 12px;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .suggested-pill button {
+      border: 1px solid #bfdbfe;
+      background: #eef6ff;
+      color: var(--accent);
+      border-radius: 999px;
+      padding: 6px 10px;
+      font-size: 11px;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    .pipeline-chart-hidden {
+      display: none;
+      height: 0 !important;
+      min-height: 0 !important;
+      margin: 0 !important;
+      padding: 0 !important;
+    }
+
+    .calendar-board {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 12px;
+      min-width: 1180px;
+    }
+
+    .calendar-day {
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      background: linear-gradient(180deg, #ffffff, #fbfdff);
+      min-height: 108px;
+      overflow: hidden;
+      transition: min-height 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .calendar-day.expanded {
+      min-height: 260px;
+      box-shadow: 0 10px 22px rgba(15, 23, 42, 0.08);
+    }
+
+    .calendar-day-head {
+      padding: 8px 10px;
+      border-bottom: 1px solid #e7eef8;
+      text-align: center;
+      font-size: 12px;
+      font-weight: 800;
+      color: #475569;
+      background: #f8fbff;
+    }
+
+    .calendar-day-body {
+      padding: 8px;
+    }
+
+    .calendar-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      min-width: 50px;
+      padding: 4px 8px;
+      border-radius: 10px;
+      font-size: 11px;
+      font-weight: 800;
+      border: 1px solid transparent;
+      cursor: pointer;
+      margin: 0 6px 8px 0;
+      background: #fff;
+    }
+
+    .calendar-chip.alert {
+      background: #fff4dd;
+      border-color: #ffe3a3;
+      color: #92400e;
+    }
+
+    .calendar-chip.meeting {
+      background: #e8fbf0;
+      border-color: #c6f2d7;
+      color: #166534;
+    }
+
+    .calendar-chip.pipeline {
+      background: #e8f1ff;
+      border-color: #c9dcff;
+      color: #1e40af;
+    }
+
+    .calendar-detail {
+      display: none;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 10px;
+      margin-top: 4px;
+      margin-bottom: 4px;
+      background: #fff;
+    }
+
+    .calendar-detail.open {
+      display: block;
+    }
+
+    .calendar-detail-title {
+      font-size: 13px;
+      font-weight: 800;
+      margin-bottom: 4px;
+    }
+
+    .calendar-detail-meta,
+    .calendar-detail-desc {
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1.45;
+    }
+
+    .calendar-empty {
+      font-size: 12px;
+      color: var(--muted);
+      padding: 8px 2px;
+    }
+
+  </style>
+</head>
+<body>
+  <div class="main">
+    <header class="topbar">
+      <div class="search">
+        <span>🔎</span>
+        <input type="text" placeholder="Search portfolio, companies, news, alerts..." />
+      </div>
+
+      <div class="toolbar-card">
+        <span>📂</span>
+        <select class="toolbar-select">
+          <option>Marco Henry | GCC Corporate Portfolio</option>
+          <option>Strategic Industrials Portfolio</option>
+          <option>Energy & Infrastructure Portfolio</option>
+        </select>
+      </div>
+
+      <div class="top-actions">
+        <button class="primary-btn" onclick="generateDemoData()">➕ Create Sample Records</button>
+        <button class="secondary-btn" onclick="refreshDashboard()">⟳ Refresh</button>
+        <button class="icon-btn" title="Notifications">🔔</button>
+        <div class="avatar">
+          <div class="avatar-badge" id="avatarInitials">MH</div>
+          <div>
+            <div style="font-size:13px;font-weight:800;" id="userName">Marco Henry</div>
+            <div style="font-size:11px;color:var(--muted);">Senior Relationship Manager</div>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <section class="content">
+
+      <div class="top-intel">
+        <div class="top-intel-header">
+          <div>
+            <div class="top-intel-title">📰 LSEG Market Intelligence</div>
+            <div class="top-intel-subtitle" id="heroTitle">Live market signals, relationship triggers and recommended follow-ups</div>
+          </div>
+          <div class="chip" id="lastUpdatedChipTop">Updated just now</div>
+        </div>
+
+        <div class="top-intel-track">
+          <div class="top-intel-row">
+            <div class="intel-card">
+              <div>
+                <div class="intel-meta">LSEG · Energy · High relevance</div>
+                <div class="intel-title">Oil price momentum improves liquidity outlook across covered energy names</div>
+              </div>
+              <div class="intel-actions">
+                <button class="open-btn" onclick="openSuggestedItem('account',0)">Open client</button>
+                <button class="ghost-btn" onclick="openSuggestedItem('opportunity',0)">Open opportunity</button>
+              </div>
+            </div>
+
+            <div class="intel-card">
+              <div>
+                <div class="intel-meta">LSEG · Corporate action · Watchlist</div>
+                <div class="intel-title">Potential acquisition financing need identified following strategic expansion headlines</div>
+              </div>
+              <div class="intel-actions">
+                <button class="open-btn" onclick="openSuggestedItem('opportunity',1)">Review pipeline</button>
+                <button class="ghost-btn" onclick="openSuggestedItem('account',1)">Open relationship</button>
+              </div>
+            </div>
+<div class="intel-card">
+  <div>
+    <div class="intel-meta">LSEG · Capex signal · High relevance</div>
+    <div class="intel-title">First Solar signals potential Saudi expansion, creating new financing and treasury engagement opportunity</div>
+
+    <div style="margin-top:12px; margin-bottom:16px;">
+      <span style="display:inline-flex; align-items:center; gap:7px; padding:6px 11px; background:#f8fafc; border:1px solid #e2e8f0; border-radius:999px; font-size:12px; line-height:1.2; color:#334155;">
+        <span style="display:inline-flex; align-items:center; justify-content:center; width:18px; height:18px; border-radius:999px; background:#eef4ff; color:#2563eb; font-size:11px; flex:0 0 auto;">✦</span>
+        <span style="font-weight:700; color:#0f172a;">Contact Treasury Specialist David</span>
+      </span>
+    </div>
+  </div>
+
+  <div class="intel-actions" style="margin-top:4px;">
+    <button class="open-btn" onclick="createOpportunity()">Create opportunity</button>
+    <button class="ghost-btn" onclick="openSuggestedItem('account',1)">Open relationship</button>
+  </div>
+</div>
+<script>
+  function createOpportunity() {
+    const formParameters = {
+      name: "First Solar KSA Expansion Banking Opportunity",
+      "customerid_account@odata.bind": "/accounts(78c34e09-b8c3-ec11-a7b6-000d3aafad41)"
+    };
+
+    const xrm =
+      (window.parent && window.parent.Xrm) ||
+      (window.parent && window.parent.parent && window.parent.parent.Xrm) ||
+      window.Xrm;
+
+    if (xrm && xrm.Navigation) {
+      xrm.Navigation.openForm(
+        { entityName: "opportunity" },
+        formParameters
+      );
+    } else {
+      alert("Create opportunity for First Solar");
+    }
+  }
+</script>
+
+            <div class="intel-card">
+              <div>
+                <div class="intel-meta">LSEG · Rates & FX · Treasury trigger</div>
+                <div class="intel-title">USD/EUR volatility creates a hedge review opportunity for multinational clients</div>
+              </div>
+              <div class="intel-actions">
+                <button class="open-btn" onclick="openSuggestedItem('task',0)">Open action</button>
+                <button class="ghost-btn" onclick="openSuggestedItem('account',2)">Open client</button>
+              </div>
+            </div>
+
+            <div class="intel-card">
+              <div>
+                <div class="intel-meta">LSEG · Capex signal · New opportunity</div>
+                <div class="intel-title">New facility investment announcements point to fresh lending and cash management demand</div>
+              </div>
+              <div class="intel-actions">
+                <button class="open-btn" onclick="openSuggestedItem('opportunity',2)">Open opportunity</button>
+                <button class="ghost-btn" onclick="openSuggestedItem('appointment',0)">Open meeting</button>
+              </div>
+            </div>
+
+            <div class="intel-card">
+              <div>
+                <div class="intel-meta">LSEG · Energy · High relevance</div>
+                <div class="intel-title">Oil price momentum improves liquidity outlook across covered energy names</div>
+              </div>
+              <div class="intel-actions">
+                <button class="open-btn" onclick="openSuggestedItem('account',0)">Open client</button>
+                <button class="ghost-btn" onclick="openSuggestedItem('opportunity',0)">Open opportunity</button>
+              </div>
+            </div>
+
+            <div class="intel-card">
+              <div>
+                <div class="intel-meta">LSEG · Corporate action · Watchlist</div>
+                <div class="intel-title">Potential acquisition financing need identified following strategic expansion headlines</div>
+              </div>
+              <div class="intel-actions">
+                <button class="open-btn" onclick="openSuggestedItem('opportunity',1)">Review pipeline</button>
+                <button class="ghost-btn" onclick="openSuggestedItem('account',1)">Open relationship</button>
+              </div>
+            </div>
+
+            <div class="intel-card">
+              <div>
+                <div class="intel-meta">LSEG · Rates & FX · Treasury trigger</div>
+                <div class="intel-title">USD/EUR volatility creates a hedge review opportunity for multinational clients</div>
+              </div>
+              <div class="intel-actions">
+                <button class="open-btn" onclick="openSuggestedItem('task',0)">Open action</button>
+                <button class="ghost-btn" onclick="openSuggestedItem('account',2)">Open client</button>
+              </div>
+            </div>
+
+            <div class="intel-card">
+              <div>
+                <div class="intel-meta">LSEG · Capex signal · New opportunity</div>
+                <div class="intel-title">New facility investment announcements point to fresh lending and cash management demand</div>
+              </div>
+              <div class="intel-actions">
+                <button class="open-btn" onclick="openSuggestedItem('opportunity',2)">Open opportunity</button>
+                <button class="ghost-btn" onclick="openSuggestedItem('appointment',0)">Open meeting</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="suggested-actions">
+          <div class="suggested-pill">⚡ Follow up on refinancing discussion <button onclick="openSuggestedItem('opportunity',0)">Open</button></div>
+          <div class="suggested-pill">🏦 Review treasury cross-sell candidate <button onclick="openSuggestedItem('account',1)">Open</button></div>
+          <div class="suggested-pill">📋 Complete KYC follow-up before review <button onclick="openSuggestedItem('task',1)">Open</button></div>
+          <div class="suggested-pill">📅 Prepare for client meeting pack <button onclick="openSuggestedItem('appointment',0)">Open</button></div>
+        </div>
+
+        <div class="loading-note" id="dataModeNote" style="color:var(--muted); margin-top:12px;">Loading Dataverse data...</div>
+      </div>
+
+
+      <div class="section-grid">
+        <div class="panel span-12">
+          <div class="panel-header">
+            <div class="panel-title-wrap">
+              <div class="panel-title">📊 Portfolio Snapshot</div>
+              <div class="panel-subtitle">Live KPIs combining CRM, pipeline and AI scoring</div>
+            </div>
+            <div class="chip" id="lastUpdatedChip">Updated just now</div>
+          </div>
+          <div class="panel-body">
+            <div class="mini-stat-grid">
+              <div class="mini-stat">
+                <div class="mini-label">Active Clients</div>
+                <div class="mini-value" id="activeClientsValue">0</div>
+                <div class="mini-delta good" id="activeClientsSub">CRM relationships in view</div>
+              </div>
+              <div class="mini-stat">
+                <div class="mini-label">Weighted Pipeline</div>
+                <div class="mini-value" id="weightedPipelineValue">AED 0.0M</div>
+                <div class="mini-delta good" id="weightedPipelineSub">Filtered to open opportunities</div>
+              </div>
+              <div class="mini-stat">
+                <div class="mini-label">AI Risk Exposure</div>
+                <div class="mini-value" id="atRiskExposureValue">AED 0.0M</div>
+                <div class="mini-delta warn" id="atRiskExposureSub">AI-calculated from signals and activities</div>
+              </div>
+              <div class="mini-stat">
+                <div class="mini-label">AI Portfolio Score</div>
+                <div class="mini-value" id="lsegSentimentValue">0 / 100</div>
+                <div class="mini-delta good" id="lsegSentimentSub">Higher means healthier coverage</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel span-3">
+          <div class="panel-header">
+            <div class="panel-title-wrap">
+              <div class="panel-title">⚠️ Priority Alerts</div>
+              <div class="panel-subtitle">Open task activity</div>
+            </div>
+            <div class="chip" id="alertsCountChip">0 Open</div>
+          </div>
+          <div class="panel-body">
+            <div class="list" id="alertList"></div>
+          </div>
+        </div>
+
+        <div class="panel span-3">
+          <div class="panel-header">
+            <div class="panel-title-wrap">
+              <div class="panel-title">📅 Meetings & Next Best Actions</div>
+              <div class="panel-subtitle">Upcoming meeting activity</div>
+            </div>
+            <div class="chip" id="meetingsCountChip">0 This Week</div>
+          </div>
+          <div class="panel-body">
+            <div class="list" id="meetingList"></div>
+          </div>
+        </div>
+
+        <div class="panel span-3">
+          <div class="panel-header">
+            <div class="panel-title-wrap">
+              <div class="panel-title">📈 Pipeline Health</div>
+              <div class="panel-subtitle">Open opportunities with revenue and close date</div>
+            </div>
+            <div class="chip" id="opportunityCountChip">0 Open</div>
+          </div>
+          <div class="panel-body">
+            <div class="chart-box small pipeline-chart-hidden" id="pipelineChart"></div>
+            <div class="footer-note">Estimated revenue and close date</div>
+            <div class="list" id="opportunityList" style="margin-top:10px; max-height:320px;"></div>
+          </div>
+        </div>
+
+        
+        <div class="panel span-3">
+          <div class="panel-header">
+            <div class="panel-title-wrap">
+              <div class="panel-title">🗂️ Client Administration Tasks</div>
+              <div class="panel-subtitle">Priority operational follow-ups</div>
+            </div>
+            <div class="chip">3 Tasks</div>
+          </div>
+          <div class="panel-body">
+            <div class="list">
+              <div class="item">
+                <div class="item-left">
+                  <div class="item-strip" style="background:var(--warn)"></div>
+                  <div class="item-main">
+                    <div class="item-title">Prepare Quarterly Business Review</div>
+                    <div class="item-meta">Due date: 07 Jan 2025, 09:00 AM</div>
+                    <div class="item-desc">Priority: High</div>
+                  </div>
+                </div>
+                <div class="badge-col">
+                  <div class="badge amber">High</div>
+                  <div class="time">Task</div>
+                </div>
+              </div>
+
+              <div class="item">
+                <div class="item-left">
+                  <div class="item-strip" style="background:var(--bad)"></div>
+                  <div class="item-main">
+                    <div class="item-title">Send request for missing KYC</div>
+                    <div class="item-meta">Due date: 08 Jan 2025, 07:00 AM</div>
+                    <div class="item-desc">Priority: Normal</div>
+                  </div>
+                </div>
+                <div class="badge-col">
+                  <div class="badge red">Open</div>
+                  <div class="time">Task</div>
+                </div>
+              </div>
+
+              <div class="item">
+                <div class="item-left">
+                  <div class="item-strip" style="background:var(--good)"></div>
+                  <div class="item-main">
+                    <div class="item-title">Weekly Client Review</div>
+                    <div class="item-meta">Due date: 12 Dec 2024, 07:00 AM</div>
+                    <div class="item-desc">Priority: Normal</div>
+                  </div>
+                </div>
+                <div class="badge-col">
+                  <div class="badge green">Scheduled</div>
+                  <div class="time">Review</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+          
+        
+        <div class="panel span-12">
+          <div class="panel-header">
+            <div class="panel-title-wrap">
+              <div class="panel-title">🗓️ Calendar</div>
+              <div class="panel-subtitle">Alerts, meetings and pipeline milestones for the week</div>
+            </div>
+            <div class="chip">Week View</div>
+          </div>
+          <div class="panel-body" style="overflow-x:auto;">
+            <div class="calendar-board" id="calendarStrip"></div>
+          </div>
+        </div>
+
+        <div class="panel span-7">
+          <div class="panel-header">
+            <div class="panel-title-wrap">
+              <div class="panel-title">💥 News & Portfolio Impact</div>
+              <div class="panel-subtitle">How external events are moving your relationship portfolio</div>
+            </div>
+            <div class="chip">AI-ranked relevance</div>
+          </div>
+          <div class="panel-body">
+            <div class="toggle-row" id="impactFilters">
+              <div class="toggle-chip active" data-filter="all">All</div>
+              <div class="toggle-chip" data-filter="positive">Positive</div>
+              <div class="toggle-chip" data-filter="negative">Negative</div>
+              <div class="toggle-chip" data-filter="watch">Watchlist</div>
+            </div>
+
+            <div class="impact-grid">
+              <div class="impact-card">
+                <div class="top"><span>Net Positive Impact</span><span class="good">▲ 3 clients</span></div>
+                <div class="big">AED 2.2M</div>
+                <div style="color:var(--muted)">Expected revenue uplift from market/news events</div>
+              </div>
+              <div class="impact-card">
+                <div class="top"><span>Net Negative Impact</span><span class="bad">▼ 2 clients</span></div>
+                <div class="big">AED 0.9M</div>
+                <div style="color:var(--muted)">Potential downside requiring RM attention</div>
+              </div>
+              <div class="impact-card">
+                <div class="top"><span>Cross-Sell Triggered</span><span class="good">5 suggestions</span></div>
+                <div class="big">AED 1.5M</div>
+                <div style="color:var(--muted)">AI-generated next best opportunities from signals</div>
+              </div>
+            </div>
+
+            <div class="news-ticker">
+              <div class="list" id="newsList">
+                <div class="item news-row" data-type="positive">
+                  <div class="item-left">
+                    <div class="item-strip" style="background:var(--good)"></div>
+                    <div class="item-main">
+                      <div class="item-title">Oil rally lifts energy coverage names</div>
+                      <div class="item-meta">2 clients impacted · High relevance · 09:10</div>
+                      <div class="item-desc">Estimated portfolio benefit: +AED 1.1M</div>
+                    </div>
+                  </div>
+                  <div class="badge-col">
+                    <div class="badge green">Positive</div>
+                    <div class="time">Open</div>
+                  </div>
+                </div>
+
+                <div class="item news-row" data-type="negative">
+                  <div class="item-left">
+                    <div class="item-strip" style="background:var(--bad)"></div>
+                    <div class="item-main">
+                      <div class="item-title">VoltEdge faces delivery delays on battery project</div>
+                      <div class="item-meta">1 client impacted · Critical relevance · 08:42</div>
+                      <div class="item-desc">Estimated downside exposure impact: -AED 0.8M</div>
+                    </div>
+                  </div>
+                  <div class="badge-col">
+                    <div class="badge red">Negative</div>
+                    <div class="time">Open</div>
+                  </div>
+                </div>
+
+                <div class="item news-row" data-type="watch">
+                  <div class="item-left">
+                    <div class="item-strip" style="background:var(--warn)"></div>
+                    <div class="item-main">
+                      <div class="item-title">US rates commentary may affect refinancing discussions</div>
+                      <div class="item-meta">4 clients impacted · Medium relevance · 07:55</div>
+                      <div class="item-desc">Potential repricing pressure across watchlist.</div>
+                    </div>
+                  </div>
+                  <div class="badge-col">
+                    <div class="badge amber">Watch</div>
+                    <div class="time">Open</div>
+                  </div>
+                </div>
+
+                <div class="item news-row" data-type="positive">
+                  <div class="item-left">
+                    <div class="item-strip" style="background:var(--accent)"></div>
+                    <div class="item-main">
+                      <div class="item-title">Freight rates ease, supporting logistics margins</div>
+                      <div class="item-meta">1 client impacted · Medium relevance · 07:20</div>
+                      <div class="item-desc">Cross-sell trigger: supply chain finance</div>
+                    </div>
+                  </div>
+                  <div class="badge-col">
+                    <div class="badge blue">Actionable</div>
+                    <div class="time">Open</div>
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <div class="impact-bars">
+                  <div class="impact-row"><div>Gulf Petrochem</div><div class="bar-track"><div class="bar-fill" style="width:88%"></div></div><div class="good">+1.1M</div></div>
+                  <div class="impact-row"><div>Aster Drilling</div><div class="bar-track"><div class="bar-fill" style="width:64%"></div></div><div class="good">+0.7M</div></div>
+                  <div class="impact-row"><div>Nova Logistics</div><div class="bar-track"><div class="bar-fill" style="width:46%"></div></div><div class="good">+0.4M</div></div>
+                  <div class="impact-row"><div>VoltEdge Energy</div><div class="bar-track"><div class="bar-fill" style="width:35%;background:linear-gradient(90deg,#ef4444,#f97316)"></div></div><div class="bad">-0.8M</div></div>
+                  <div class="impact-row"><div>First Solar MENA</div><div class="bar-track"><div class="bar-fill" style="width:18%;background:linear-gradient(90deg,#f59e0b,#fbbf24)"></div></div><div class="warn">Watch</div></div>
+                </div>
+                <div class="chart-box" id="impactChart" style="height:250px;"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel span-5">
+          <div class="panel-header">
+            <div class="panel-title-wrap">
+              <div class="panel-title">🧠 AI Client Prioritization</div>
+              <div class="panel-subtitle">Relationship scoring based on pipeline, urgency, meetings and market signals</div>
+            </div>
+            <div class="chip">AI Layer</div>
+          </div>
+          <div class="panel-body">
+            <div class="score-summary">
+              <div class="score-card">
+                <div class="label">Highest Risk Client</div>
+                <div class="value" id="highestRiskClient">—</div>
+                <div class="score-badge score-high" id="highestRiskBadge">No data</div>
+              </div>
+              <div class="score-card">
+                <div class="label">Best Upsell Candidate</div>
+                <div class="value" id="bestUpsellClient">—</div>
+                <div class="score-badge score-low" id="bestUpsellBadge">No data</div>
+              </div>
+              <div class="score-card">
+                <div class="label">Priority Coverage Action</div>
+                <div class="value" id="priorityActionText">—</div>
+                <div class="score-badge score-medium" id="priorityActionBadge">Awaiting data</div>
+              </div>
+            </div>
+
+            <div class="score-grid">
+              <div class="score-list" id="aiScoreList"></div>
+              <div>
+                <div class="toggle-row" style="margin-bottom:10px;">
+                  <button class="ghost-btn active-ai" disabled>Exposure vs AI Risk</button>
+                </div>
+                <div class="chart-box tall" id="sensitivityChart"></div>
+                <div class="footer-note">AI risk score is derived from open tasks, near-term meetings, opportunity size, and simulated market pressure by client name.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+    </section>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    const APP_ID = "c2df169c-f557-eb11-bb23-000d3a26d466";
+
+    const state = {
+      xrm: null,
+      clientUrl: "",
+      userId: "",
+      userName: "Marco Henry",
+      accounts: [],
+      opps: [],
+      tasks: [],
+      appts: [],
+      aiScores: [],
+      sectorData: []
+    };
+
+    function showToast(message, isError) {
+      const toast = document.getElementById("toast");
+      toast.textContent = message;
+      toast.style.background = isError ? "#7f1d1d" : "#0f172a";
+      toast.classList.add("show");
+      setTimeout(() => toast.classList.remove("show"), 3500);
+    }
+
+    function escapeHtml(str) {
+      if (str === null || str === undefined) return "";
+      return String(str)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+    }
+
+    function formatMoneyAED(value) {
+      const n = Number(value || 0);
+      if (Math.abs(n) >= 1000000) return "AED " + (n / 1000000).toFixed(1) + "M";
+      if (Math.abs(n) >= 1000) return "AED " + (n / 1000).toFixed(1) + "K";
+      return "AED " + n.toFixed(0);
+    }
+
+    function getInitials(name) {
+      return (name || "RM")
+        .split(" ")
+        .map(x => x.charAt(0))
+        .slice(0, 2)
+        .join("")
+        .toUpperCase();
+    }
+
+    function isDemoName(value) {
+      return typeof value === "string" && value.trim().startsWith("*");
+    }
+
+    function stripDemoPrefix(value) {
+      return typeof value === "string" ? value.replace(/^\*\s*/, "") : "";
+    }
+
+    async function getXrmContext() {
+      if (typeof Xrm !== "undefined") return Xrm;
+      if (window.parent && window.parent.Xrm) return window.parent.Xrm;
+      if (window.top && window.top.Xrm) return window.top.Xrm;
+      return null;
+    }
+
+    async function openRecord(entityName, id) {
+      const XrmRef = await getXrmContext();
+      if (XrmRef && id) {
+        try {
+          await XrmRef.Navigation.openForm({
+            entityName: entityName,
+            entityId: id
+          });
+          return;
+        } catch (e) {}
+      }
+
+      if (state.clientUrl && id) {
+        const cleanId = String(id).replace(/[{}]/g, "");
+        const url = state.clientUrl + "/main.aspx?appid=" + APP_ID + "&forceUCI=1&pagetype=entityrecord&etn=" + entityName + "&id=" + cleanId;
+        window.open(url, "_blank");
+      }
+    }
+
+    function openSuggestedItem(type, index) {
+      const maps = {
+        account: state.accounts || [],
+        opportunity: state.opps || [],
+        task: state.tasks || [],
+        appointment: state.appts || []
+      };
+      const entityNames = {
+        account: "account",
+        opportunity: "opportunity",
+        task: "task",
+        appointment: "appointment"
+      };
+      const idFields = {
+        account: "accountid",
+        opportunity: "opportunityid",
+        task: "activityid",
+        appointment: "activityid"
+      };
+
+      const items = maps[type] || [];
+      if (!items.length) {
+        showToast("No related CRM item is currently loaded.", true);
+        return;
+      }
+
+      const item = items[Math.min(index || 0, items.length - 1)];
+      const idField = idFields[type];
+      if (!item || !item[idField]) {
+        showToast("The selected item is not available in CRM yet.", true);
+        return;
+      }
+
+      openRecord(entityNames[type], item[idField]);
+    }
+
+    function toggleCalendarDetail(id) {
+      const target = document.getElementById(id);
+      if (!target) return;
+
+      const targetDay = target.closest(".calendar-day");
+      const willOpen = !target.classList.contains("open");
+
+      document.querySelectorAll(".calendar-detail").forEach(el => {
+        if (el.id !== id) el.classList.remove("open");
+      });
+
+      document.querySelectorAll(".calendar-day").forEach(day => {
+        if (day !== targetDay) day.classList.remove("expanded");
+      });
+
+      target.classList.toggle("open");
+      if (targetDay) {
+        if (willOpen) targetDay.classList.add("expanded");
+        else targetDay.classList.remove("expanded");
+      }
+    }
+
+
+    function refreshDashboard() {
+      loadDashboard();
+    }
+
+    function extractClientNameFromText(text) {
+      const t = (text || "").toLowerCase();
+      if (t.includes("first solar")) return "*First Solar MENA";
+      if (t.includes("nova logistics")) return "*Nova Logistics";
+      if (t.includes("voltedge")) return "*VoltEdge Energy";
+      if (t.includes("gulf petrochem")) return "*Gulf Petrochem LLC";
+      return "*Unassigned Client";
+    }
+
+    function classifySector(name) {
+      const n = (name || "").toLowerCase();
+      if (n.includes("solar") || n.includes("energy") || n.includes("petrochem")) return "Energy";
+      if (n.includes("logistics")) return "Logistics";
+      if (n.includes("manufacturing")) return "Manufacturing";
+      if (n.includes("retail")) return "Retail";
+      if (n.includes("trade")) return "Trading";
+      return "Infrastructure";
+    }
+
+    function marketSignalForClient(name) {
+      const n = (name || "").toLowerCase();
+      if (n.includes("voltedge")) return { riskImpact: 28, upsideImpact: 4, reason: "Negative sentiment and project delay signals" };
+      if (n.includes("first solar")) return { riskImpact: 12, upsideImpact: 15, reason: "Energy market tailwinds with refinancing watch" };
+      if (n.includes("nova logistics")) return { riskImpact: 8, upsideImpact: 12, reason: "Freight normalization supports margin recovery" };
+      if (n.includes("gulf petrochem")) return { riskImpact: 14, upsideImpact: 18, reason: "Commodity pricing supports wallet expansion" };
+      return { riskImpact: 10, upsideImpact: 8, reason: "Neutral external market signals" };
+    }
+
+    function scoreBand(score) {
+      if (score >= 75) return { text: "High", cls: "score-high" };
+      if (score >= 50) return { text: "Medium", cls: "score-medium" };
+      return { text: "Low", cls: "score-low" };
+    }
+
+    function getPriorityAction(item) {
+      if (!item) return "No action";
+      if (item.riskScore >= 75) return "Call now";
+      if (item.upsideScore >= 65) return "Upsell now";
+      return "Review";
+    }
+
+    function runAiScoring() {
+      const byClient = {};
+
+      state.accounts.forEach(a => {
+        const raw = a.name || "";
+        if (!isDemoName(raw)) return;
+        const clean = stripDemoPrefix(raw);
+        byClient[clean] = {
+          cleanName: clean,
+          rawName: raw,
+          accountId: a.accountid || "",
+          sector: classifySector(clean),
+          exposure: 0,
+          oppCount: 0,
+          taskCount: 0,
+          highPriorityTasks: 0,
+          meetingCount: 0,
+          nearTermMeetings: 0,
+          marketRisk: 0,
+          marketUpside: 0,
+          marketReason: "",
+          riskScore: 0,
+          upsideScore: 0,
+          portfolioScore: 0,
+          reasons: []
+        };
+      });
+
+      state.opps.forEach(o => {
+        const name = o.name || "";
+        if (!isDemoName(name)) return;
+
+        let clientRaw = null;
+        const parentFormatted = o["_parentaccountid_value@OData.Community.Display.V1.FormattedValue"];
+        if (parentFormatted && isDemoName(parentFormatted)) {
+          clientRaw = parentFormatted;
+        } else {
+          clientRaw = extractClientNameFromText(name);
+        }
+
+        const cleanClient = stripDemoPrefix(clientRaw);
+        if (!byClient[cleanClient]) {
+          byClient[cleanClient] = {
+            cleanName: cleanClient,
+            rawName: clientRaw,
+            accountId: "",
+            sector: classifySector(cleanClient),
+            exposure: 0,
+            oppCount: 0,
+            taskCount: 0,
+            highPriorityTasks: 0,
+            meetingCount: 0,
+            nearTermMeetings: 0,
+            marketRisk: 0,
+            marketUpside: 0,
+            marketReason: "",
+            riskScore: 0,
+            upsideScore: 0,
+            portfolioScore: 0,
+            reasons: []
+          };
+        }
+
+        byClient[cleanClient].exposure += Number(o.estimatedvalue || 0);
+        byClient[cleanClient].oppCount += 1;
+      });
+
+      state.tasks.forEach(t => {
+        const subject = t.subject || "";
+        if (!isDemoName(subject)) return;
+
+        const clientRaw = extractClientNameFromText(subject);
+        const cleanClient = stripDemoPrefix(clientRaw);
+        if (!byClient[cleanClient]) return;
+
+        byClient[cleanClient].taskCount += 1;
+        const p = t["prioritycode@OData.Community.Display.V1.FormattedValue"] || "";
+        if (String(p).toLowerCase() === "high") {
+          byClient[cleanClient].highPriorityTasks += 1;
+        }
+      });
+
+      const now = new Date();
+      const soon = new Date();
+      soon.setDate(now.getDate() + 7);
+
+      state.appts.forEach(a => {
+        const subject = a.subject || "";
+        if (!isDemoName(subject)) return;
+
+        const clientRaw = extractClientNameFromText(subject);
+        const cleanClient = stripDemoPrefix(clientRaw);
+        if (!byClient[cleanClient]) return;
+
+        byClient[cleanClient].meetingCount += 1;
+        if (a.scheduledstart) {
+          const d = new Date(a.scheduledstart);
+          if (d >= now && d <= soon) byClient[cleanClient].nearTermMeetings += 1;
+        }
+      });
+
+      const clients = Object.values(byClient);
+
+      clients.forEach(c => {
+        const signal = marketSignalForClient(c.cleanName);
+        c.marketRisk = signal.riskImpact;
+        c.marketUpside = signal.upsideImpact;
+        c.marketReason = signal.reason;
+
+        const exposureM = c.exposure / 1000000;
+        const exposureFactor = Math.min(exposureM * 3, 30);
+        const taskFactor = Math.min(c.taskCount * 8, 24);
+        const highTaskFactor = Math.min(c.highPriorityTasks * 12, 24);
+        const meetingPressure = Math.min(c.nearTermMeetings * 6, 12);
+        const upsideFactor = Math.min(c.oppCount * 12 + exposureM * 1.5 + c.marketUpside, 100);
+
+        c.riskScore = Math.round(Math.min(exposureFactor + taskFactor + highTaskFactor + meetingPressure + c.marketRisk, 100));
+        c.upsideScore = Math.round(Math.min(upsideFactor, 100));
+        c.portfolioScore = Math.max(0, Math.min(100, Math.round(100 - (c.riskScore * 0.55) + (c.upsideScore * 0.35))));
+
+        c.reasons = [];
+        if (c.exposure > 0) c.reasons.push(formatMoneyAED(c.exposure) + " exposure");
+        if (c.highPriorityTasks > 0) c.reasons.push(c.highPriorityTasks + " high-priority task(s)");
+        if (c.nearTermMeetings > 0) c.reasons.push(c.nearTermMeetings + " meeting(s) in next 7 days");
+        c.reasons.push(c.marketReason);
+      });
+
+      state.aiScores = clients.sort((a, b) => b.riskScore - a.riskScore);
+
+      const sectorMap = {};
+      clients.forEach(c => {
+        if (!sectorMap[c.sector]) {
+          sectorMap[c.sector] = { sector: c.sector, exposure: 0, risk: 0, count: 0 };
+        }
+        sectorMap[c.sector].exposure += c.exposure / 1000000;
+        sectorMap[c.sector].risk += c.riskScore;
+        sectorMap[c.sector].count += 1;
+      });
+
+      state.sectorData = Object.values(sectorMap).map(s => ({
+        sector: s.sector,
+        exposure: Number(s.exposure.toFixed(1)),
+        risk: Math.round(s.risk / s.count)
+      }));
+    }
+
+    function renderTasks() {
+      const container = document.getElementById("alertList");
+      const tasks = state.tasks;
+
+      if (!tasks.length) {
+        container.innerHTML = `
+          <div class="item">
+            <div class="item-left">
+              <div class="item-strip" style="background:var(--warn)"></div>
+              <div class="item-main">
+                <div class="item-title">No alerts found</div>
+                <div class="item-meta">Use the refresh action or open records in CRM</div>
+                <div class="item-desc">Only tasks with subject starting with * are shown here.</div>
+              </div>
+            </div>
+            <div class="badge-col">
+              <div class="badge amber">Alert</div>
+              <div class="time">0</div>
+            </div>
+          </div>
+        `;
+        document.getElementById("alertsCountChip").textContent = "0 Open";
+        return;
+      }
+
+      container.innerHTML = tasks.map(t => {
+        const priorityText = t["prioritycode@OData.Community.Display.V1.FormattedValue"] || "Normal";
+        const due = t.scheduledend ? new Date(t.scheduledend).toLocaleString() : "No due date";
+        const badgeClass = priorityText === "High" ? "red" : priorityText === "Normal" ? "amber" : "blue";
+        const stripColor = priorityText === "High" ? "var(--bad)" : priorityText === "Normal" ? "var(--warn)" : "var(--accent)";
+        return `
+          <div class="item">
+            <div class="item-left">
+              <div class="item-strip" style="background:${stripColor}"></div>
+              <div class="item-main">
+                <div class="item-title">${escapeHtml(stripDemoPrefix(t.subject || "Task"))}</div>
+                <div class="item-meta">${escapeHtml(due)}</div>
+                <div class="item-desc">Open task owned by the current RM.</div>
+                <div class="item-actions">
+                  <button class="open-btn" onclick="openRecord('task','${t.activityid}')">Open</button>
+                </div>
+              </div>
+            </div>
+            <div class="badge-col">
+              <div class="badge ${badgeClass}">${escapeHtml(priorityText)}</div>
+              <div class="time">Task</div>
+            </div>
+          </div>
+        `;
+      }).join("");
+
+      document.getElementById("alertsCountChip").textContent = tasks.length + " Open";
+    }
+
+    function renderMeetings() {
+      const container = document.getElementById("meetingList");
+      const appts = state.appts.slice(0, 6);
+
+      if (!appts.length) {
+        container.innerHTML = `
+          <div class="item">
+            <div class="item-left">
+              <div class="item-strip" style="background:var(--good)"></div>
+              <div class="item-main">
+                <div class="item-title">No meetings found</div>
+                <div class="item-meta">Meetings will appear here when available</div>
+                <div class="item-desc">Only appointments with subject starting with * are shown here.</div>
+              </div>
+            </div>
+            <div class="badge-col">
+              <div class="badge green">Meeting</div>
+              <div class="time">0</div>
+            </div>
+          </div>
+        `;
+        document.getElementById("meetingsCountChip").textContent = "0 This Week";
+        return;
+      }
+
+      container.innerHTML = appts.map(a => {
+        const start = a.scheduledstart ? new Date(a.scheduledstart).toLocaleString() : "No date";
+        return `
+          <div class="item">
+            <div class="item-left">
+              <div class="item-strip" style="background:var(--good)"></div>
+              <div class="item-main">
+                <div class="item-title">${escapeHtml(stripDemoPrefix(a.subject || "Appointment"))}</div>
+                <div class="item-meta">${escapeHtml(start)}</div>
+                <div class="item-desc">Upcoming appointment from Dataverse.</div>
+                <div class="item-actions">
+                  <button class="open-btn" onclick="openRecord('appointment','${a.activityid}')">Open</button>
+                </div>
+              </div>
+            </div>
+            <div class="badge-col">
+              <div class="badge green">Meeting</div>
+              <div class="time">CRM</div>
+            </div>
+          </div>
+        `;
+      }).join("");
+
+      document.getElementById("meetingsCountChip").textContent = appts.length + " This Week";
+    }
+
+
+    function renderOpportunities() {
+      const container = document.getElementById("opportunityList");
+      const opps = state.opps.slice(0, 6);
+
+      if (!opps.length) {
+        container.innerHTML = `
+          <div class="item" style="padding:10px;">
+            <div class="item-left">
+              <div class="item-strip" style="background:var(--accent)"></div>
+              <div class="item-main">
+                <div class="item-title">No opportunities found</div>
+                <div class="item-meta">Open opportunities will appear here</div>
+              </div>
+            </div>
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = opps.map(o => {
+        const stage = o["salesstagecode@OData.Community.Display.V1.FormattedValue"] || o.stepname || "Open";
+        const closeDate = o.estimatedclosedate ? new Date(o.estimatedclosedate).toLocaleDateString() : "No close date";
+        return `
+          <div class="item" style="padding:10px;">
+            <div class="item-left">
+              <div class="item-strip" style="background:var(--accent)"></div>
+              <div class="item-main">
+                <div class="item-title">${escapeHtml(stripDemoPrefix(o.name || "Opportunity"))}</div>
+                <div class="item-meta">${escapeHtml(stage)}</div>
+                <div class="item-desc">Est. revenue: ${escapeHtml(formatMoneyAED(o.estimatedvalue || 0))} · Close date: ${escapeHtml(closeDate)}</div>
+              </div>
+            </div>
+            <div class="badge-col" style="justify-content:center;">
+              <button class="mini-open-btn" onclick="openRecord('opportunity','${o.opportunityid}')">Open</button>
+            </div>
+          </div>
+        `;
+      }).join("");
+    }
+
+
+    function renderCalendar() {
+      const strip = document.getElementById("calendarStrip");
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+
+      const monday = new Date(today);
+      const dayOfWeek = monday.getDay();
+      const diffToMonday = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
+      monday.setDate(monday.getDate() + diffToMonday);
+      monday.setHours(0, 0, 0, 0);
+
+      const days = [];
+      for (let i = 0; i < 14; i++) {
+        const d = new Date(monday);
+        d.setDate(monday.getDate() + i);
+        const dow = d.getDay();
+        if (dow !== 0 && dow !== 6) {
+          days.push(d);
+        }
+      }
+
+      const calendarItems = [];
+
+      state.tasks.forEach((t, idx) => {
+        const fallback = new Date(days[Math.min(idx, days.length - 1)]);
+        const dt = t.scheduledend ? new Date(t.scheduledend) : fallback;
+        calendarItems.push({
+          type: "alert",
+          title: stripDemoPrefix(t.subject || "Alert"),
+          datetime: dt,
+          meta: "Priority: " + (t["prioritycode@OData.Community.Display.V1.FormattedValue"] || "Normal"),
+          desc: "Task owner: current RM",
+          entity: "task",
+          id: t.activityid || ""
+        });
+      });
+
+      state.appts.forEach(a => {
+        if (!a.scheduledstart) return;
+        calendarItems.push({
+          type: "meeting",
+          title: stripDemoPrefix(a.subject || "Meeting"),
+          datetime: new Date(a.scheduledstart),
+          meta: "Meeting",
+          desc: "Scheduled appointment in CRM",
+          entity: "appointment",
+          id: a.activityid || ""
+        });
+      });
+
+      state.opps.forEach((o, idx) => {
+        const fallback = new Date(days[Math.min(idx, days.length - 1)]);
+        const dt = o.estimatedclosedate ? new Date(o.estimatedclosedate) : fallback;
+        calendarItems.push({
+          type: "pipeline",
+          title: stripDemoPrefix(o.name || "Opportunity"),
+          datetime: dt,
+          meta: "Est. revenue: " + formatMoneyAED(o.estimatedvalue || 0),
+          desc: "Close date: " + (o.estimatedclosedate ? new Date(o.estimatedclosedate).toLocaleDateString() : "TBC"),
+          entity: "opportunity",
+          id: o.opportunityid || ""
+        });
+      });
+
+      if (!calendarItems.length) {
+        calendarItems.push(
+          { type:"alert", title:"Quarterly risk review", datetime:new Date(days[0].getTime() + 9*60*60*1000), meta:"Priority: High", desc:"Review outstanding client action", entity:"", id:"" },
+          { type:"meeting", title:"Credit structuring call", datetime:new Date(days[1].getTime() + 10*60*60*1000), meta:"Meeting", desc:"Prepare discussion notes and client brief", entity:"", id:"" },
+          { type:"meeting", title:"Portfolio checkpoint", datetime:new Date(days[1].getTime() + 14*60*60*1000), meta:"Meeting", desc:"Internal coverage sync", entity:"", id:"" },
+          { type:"pipeline", title:"Business Expansion", datetime:new Date(days[2].getTime() + 11*60*60*1000), meta:"Est. revenue: AED 8.7M", desc:"Close date: 31 Dec 2025", entity:"", id:"" },
+          { type:"pipeline", title:"Treasury Optimization", datetime:new Date(days[9].getTime() + 15*60*60*1000), meta:"Est. revenue: AED 3.1M", desc:"Close date: 06 Jan 2026", entity:"", id:"" }
+        );
+      }
+
+      strip.innerHTML = "";
+
+      const iconByType = { alert: "⚠️", meeting: "📅", pipeline: "📈" };
+
+      days.forEach((d, dayIndex) => {
+        const start = new Date(d);
+        const end = new Date(d);
+        end.setDate(end.getDate() + 1);
+
+        const items = calendarItems
+          .filter(x => x.datetime >= start && x.datetime < end)
+          .sort((a, b) => a.datetime - b.datetime);
+
+        const grouped = {
+          alert: items.filter(x => x.type === "alert"),
+          meeting: items.filter(x => x.type === "meeting"),
+          pipeline: items.filter(x => x.type === "pipeline")
+        };
+
+        const card = document.createElement("div");
+        card.className = "calendar-day";
+        card.innerHTML = `
+          <div class="calendar-day-head">${d.toLocaleDateString(undefined, { weekday: "short", day: "2-digit", month: "short" })}</div>
+          <div class="calendar-day-body"></div>
+        `;
+
+        const body = card.querySelector(".calendar-day-body");
+        const typesWithItems = Object.keys(grouped).filter(type => grouped[type].length > 0);
+
+        if (!typesWithItems.length) {
+          body.innerHTML = `<div class="calendar-empty">No scheduled activity</div>`;
+          strip.appendChild(card);
+          return;
+        }
+
+        typesWithItems.forEach(type => {
+          const detailId = `calendar-detail-${dayIndex}-${type}`;
+          const chip = document.createElement("button");
+          chip.className = `calendar-chip ${type}`;
+          chip.setAttribute("type", "button");
+          chip.innerHTML = `${iconByType[type]} <span>${grouped[type].length}</span>`;
+          chip.onclick = () => toggleCalendarDetail(detailId);
+          body.appendChild(chip);
+
+          const detail = document.createElement("div");
+          detail.className = "calendar-detail";
+          detail.id = detailId;
+          detail.innerHTML = grouped[type].map(item => `
+            <div style="padding-bottom:10px; margin-bottom:10px; border-bottom:1px solid #eef2f7;">
+              <div class="calendar-detail-title">${escapeHtml(item.title)}</div>
+              <div class="calendar-detail-meta">${escapeHtml(item.datetime.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }))} · ${escapeHtml(item.meta)}</div>
+              <div class="calendar-detail-desc">${escapeHtml(item.desc)}</div>
+              ${item.id ? `<div class="item-actions" style="margin-top:8px;"><button class="mini-open-btn" onclick="openRecord('${item.entity}','${item.id}')">Open</button></div>` : ``}
+            </div>
+          `).join("").replace(/<div style="padding-bottom:10px; margin-bottom:10px; border-bottom:1px solid #eef2f7;">([\s\S]*?)<\/div>\s*$/, '<div style="padding-bottom:0; margin-bottom:0; border-bottom:none;">$1</div>');
+          body.appendChild(detail);
+        });
+
+        strip.appendChild(card);
+      });
+    }
+
+    function updateKpis() {
+      const accCount = state.accounts.length;
+      const pipelineValue = state.opps.reduce((s, o) => s + Number(o.estimatedvalue || 0), 0);
+      const aiRiskExposure = state.aiScores.reduce((sum, c) => sum + (c.exposure * (c.riskScore / 100)), 0);
+      const avgPortfolioScore = state.aiScores.length
+        ? Math.round(state.aiScores.reduce((s, c) => s + c.portfolioScore, 0) / state.aiScores.length)
+        : 0;
+
+      document.getElementById("activeClientsValue").textContent = accCount;
+      document.getElementById("weightedPipelineValue").textContent = formatMoneyAED(pipelineValue);
+      document.getElementById("atRiskExposureValue").textContent = formatMoneyAED(aiRiskExposure);
+      document.getElementById("lsegSentimentValue").textContent = avgPortfolioScore + " / 100";
+
+      document.getElementById("activeClientsSub").textContent = "Account records loaded";
+      document.getElementById("weightedPipelineSub").textContent = state.opps.length + " open opportunities";
+      document.getElementById("atRiskExposureSub").textContent = state.aiScores.length ? "AI-weighted from relationship signals" : "Awaiting data";
+      document.getElementById("lsegSentimentSub").textContent = state.aiScores.length ? "AI health score across portfolio" : "Higher means healthier coverage";
+
+      document.getElementById("opportunityCountChip").textContent = state.opps.length + " Open";
+      document.getElementById("lastUpdatedChip").textContent = "Updated " + new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+      const topChip = document.getElementById("lastUpdatedChipTop"); if (topChip) topChip.textContent = document.getElementById("lastUpdatedChip").textContent;
+
+      const now = new Date();
+      const seven = new Date();
+      seven.setDate(now.getDate() + 7);
+      const apptCountWeek = state.appts.filter(a => a.scheduledstart && new Date(a.scheduledstart) <= seven).length;
+      document.getElementById("meetingsCountChip").textContent = apptCountWeek + " This Week";
+      document.getElementById("alertsCountChip").textContent = state.tasks.length + " Open";
+    }
+
+    function renderAiLayer() {
+      const list = document.getElementById("aiScoreList");
+      const scores = state.aiScores;
+
+      if (!scores.length) {
+        list.innerHTML = `
+          <div class="score-item">
+            <div>
+              <div class="title">No AI-scored clients yet</div>
+              <div class="sub">Load data to populate AI prioritization</div>
+              <div class="score-reasons">The AI layer activates when records are available from CRM.</div>
+            </div>
+            <div class="score-right">
+              <div class="score-number">0</div>
+              <div class="score-action">No Data</div>
+            </div>
+          </div>
+        `;
+
+        document.getElementById("highestRiskClient").textContent = "—";
+        document.getElementById("highestRiskBadge").textContent = "No data";
+        document.getElementById("bestUpsellClient").textContent = "—";
+        document.getElementById("bestUpsellBadge").textContent = "No data";
+        document.getElementById("priorityActionText").textContent = "—";
+        document.getElementById("priorityActionBadge").textContent = "Awaiting data";
+        return;
+      }
+
+      list.innerHTML = scores.map(c => {
+        const band = scoreBand(c.riskScore);
+        const action = getPriorityAction(c);
+        return `
+          <div class="score-item">
+            <div>
+              <div class="title">${escapeHtml(c.cleanName)}</div>
+              <div class="sub">${escapeHtml(c.sector)} · ${escapeHtml(formatMoneyAED(c.exposure))} exposure</div>
+              <div class="score-reasons">${escapeHtml(c.reasons.join(" • "))}</div>
+              <div class="item-actions" style="margin-top:10px;">
+                ${c.accountId ? `<button class="open-btn" onclick="openRecord('account','${c.accountId}')">Open Account</button>` : ``}
+              </div>
+            </div>
+            <div class="score-right">
+              <div class="score-number">${c.riskScore}</div>
+              <div class="score-badge ${band.cls}">${band.text} Risk</div>
+              <div class="score-action">${action}</div>
+            </div>
+          </div>
+        `;
+      }).join("");
+
+      const highestRisk = [...scores].sort((a,b) => b.riskScore - a.riskScore)[0];
+      const bestUpsell = [...scores].sort((a,b) => b.upsideScore - a.upsideScore)[0];
+
+      document.getElementById("highestRiskClient").textContent = highestRisk.cleanName;
+      document.getElementById("highestRiskBadge").textContent = highestRisk.riskScore + "/100 risk";
+      document.getElementById("highestRiskBadge").className = "score-badge " + scoreBand(highestRisk.riskScore).cls;
+
+      document.getElementById("bestUpsellClient").textContent = bestUpsell.cleanName;
+      document.getElementById("bestUpsellBadge").textContent = bestUpsell.upsideScore + "/100 upside";
+      document.getElementById("bestUpsellBadge").className = "score-badge score-low";
+
+      document.getElementById("priorityActionText").textContent = getPriorityAction(highestRisk);
+      document.getElementById("priorityActionBadge").textContent =
+        getPriorityAction(highestRisk) === "Call now" ? "Risk-led action" :
+        getPriorityAction(bestUpsell) === "Upsell now" ? "Growth-led action" : "Review book";
+      document.getElementById("priorityActionBadge").className =
+        "score-badge " + (getPriorityAction(highestRisk) === "Call now" ? "score-high" : "score-medium");
+    }
+
+    function buildPipelineData() {
+      if (!state.opps.length) {
+        return [
+          { stage: "Prospect", value: 0 },
+          { stage: "Qualify", value: 0 },
+          { stage: "Structuring", value: 0 },
+          { stage: "Approval", value: 0 },
+          { stage: "Commit", value: 0 }
+        ];
+      }
+
+      const map = {};
+      state.opps.forEach(o => {
+        const stage = o["salesstagecode@OData.Community.Display.V1.FormattedValue"] || o.stepname || "Open";
+        map[stage] = (map[stage] || 0) + (Number(o.estimatedvalue || 0) / 1000000);
+      });
+
+      return Object.keys(map).map(k => ({ stage: k, value: Number(map[k].toFixed(2)) }));
+    }
+
+    async function loadDataverseData() {
+      const XrmRef = await getXrmContext();
+      state.xrm = XrmRef;
+
+      if (!XrmRef) {
+        document.getElementById("dataModeNote").textContent = "Running outside Dynamics. Open inside D365 to load data.";
+        return;
+      }
+
+      const gc = XrmRef.Utility.getGlobalContext();
+      state.clientUrl = gc.getClientUrl();
+      state.userId = gc.userSettings.userId.replace(/[{}]/g, "");
+      state.userName = gc.userSettings.userName || "Relationship Manager";
+
+      document.getElementById("userName").textContent = state.userName;
+      document.getElementById("avatarInitials").textContent = getInitials(state.userName);
+      document.getElementById("heroTitle").textContent = "Live market signals, relationship triggers and recommended follow-ups";
+
+      try {
+        const results = await Promise.all([
+          XrmRef.WebApi.retrieveMultipleRecords("account", `?$select=name,accountid&$filter=_ownerid_value eq ${state.userId}`),
+          XrmRef.WebApi.retrieveMultipleRecords("opportunity", `?$select=name,estimatedvalue,salesstagecode,stepname,opportunityid,statecode,_parentaccountid_value&$filter=_ownerid_value eq ${state.userId} and statecode eq 0`),
+          XrmRef.WebApi.retrieveMultipleRecords("task", `?$select=subject,prioritycode,scheduledend,activityid,statecode&$filter=_ownerid_value eq ${state.userId} and statecode eq 0&$orderby=prioritycode desc,scheduledend asc`),
+          XrmRef.WebApi.retrieveMultipleRecords("appointment", `?$select=subject,scheduledstart,scheduledend,activityid&$filter=_ownerid_value eq ${state.userId}&$orderby=scheduledstart asc`)
+        ]);
+
+        state.accounts = (results[0].entities || []).filter(x => isDemoName(x.name));
+        state.opps = (results[1].entities || []).filter(x => isDemoName(x.name));
+        state.tasks = (results[2].entities || []).filter(x => isDemoName(x.subject));
+        state.appts = (results[3].entities || []).filter(x => isDemoName(x.subject));
+
+        document.getElementById("dataModeNote").textContent = "Live Dataverse mode.";
+      } catch (e) {
+        console.error(e);
+        document.getElementById("dataModeNote").textContent = "Dataverse load failed.";
+        showToast("Dataverse load failed.", true);
+      }
+    }
+
+    async function createRecord(entityName, data) {
+      const XrmRef = await getXrmContext();
+      if (!XrmRef) throw new Error("Xrm not available");
+      return await XrmRef.WebApi.createRecord(entityName, data);
+    }
+
+    async function generateDemoData() {
+      try {
+        const XrmRef = await getXrmContext();
+        if (!XrmRef) {
+          showToast("Open this inside Dynamics 365.", true);
+          return;
+        }
+
+        const plusDays = function(days, hour, minute) {
+          const d = new Date();
+          d.setDate(d.getDate() + days);
+          d.setHours(hour, minute, 0, 0);
+          return d.toISOString();
+        };
+
+        showToast("Creating records in Dataverse...");
+
+        const acc1 = await createRecord("account", { name: "*First Solar MENA" });
+        const acc2 = await createRecord("account", { name: "*Nova Logistics" });
+        const acc3 = await createRecord("account", { name: "*VoltEdge Energy" });
+        const acc4 = await createRecord("account", { name: "*Gulf Petrochem LLC" });
+
+        await createRecord("opportunity", {
+          name: "*Working Capital Loan - First Solar",
+          estimatedvalue: 5000000,
+          "parentaccountid@odata.bind": `/accounts(${acc1.id.replace(/[{}]/g, "")})`
+        });
+
+        await createRecord("opportunity", {
+          name: "*Treasury Cross Sell - Nova Logistics",
+          estimatedvalue: 3000000,
+          "parentaccountid@odata.bind": `/accounts(${acc2.id.replace(/[{}]/g, "")})`
+        });
+
+        await createRecord("opportunity", {
+          name: "*Project Restructuring - VoltEdge",
+          estimatedvalue: 7800000,
+          "parentaccountid@odata.bind": `/accounts(${acc3.id.replace(/[{}]/g, "")})`
+        });
+
+        await createRecord("opportunity", {
+          name: "*Liquidity Optimization - Gulf Petrochem",
+          estimatedvalue: 6200000,
+          "parentaccountid@odata.bind": `/accounts(${acc4.id.replace(/[{}]/g, "")})`
+        });
+
+        await createRecord("task", {
+          subject: "*Call First Solar re refinancing",
+          prioritycode: 1,
+          scheduledend: plusDays(0, 15, 30)
+        });
+
+        await createRecord("task", {
+          subject: "*Urgent review for VoltEdge covenant risk",
+          prioritycode: 2,
+          scheduledend: plusDays(1, 10, 0)
+        });
+
+        await createRecord("task", {
+          subject: "*Nova Logistics treasury follow up",
+          prioritycode: 1,
+          scheduledend: plusDays(2, 13, 0)
+        });
+
+        await createRecord("task", {
+          subject: "*Gulf Petrochem high-value transaction review",
+          prioritycode: 2,
+          scheduledend: plusDays(1, 16, 0)
+        });
+
+        await createRecord("appointment", {
+          subject: "*First Solar credit review",
+          scheduledstart: plusDays(0, 13, 30),
+          scheduledend: plusDays(0, 14, 0)
+        });
+
+        await createRecord("appointment", {
+          subject: "*Nova Logistics treasury cross-sell call",
+          scheduledstart: plusDays(1, 10, 0),
+          scheduledend: plusDays(1, 10, 30)
+        });
+
+        await createRecord("appointment", {
+          subject: "*VoltEdge restructuring discussion",
+          scheduledstart: plusDays(2, 11, 0),
+          scheduledend: plusDays(2, 11, 30)
+        });
+
+        showToast("Records created successfully.");
+        await loadDashboard();
+      } catch (e) {
+        console.error(e);
+        showToast("Failed to create records.", true);
+      }
+    }
+
+    function updatePipelineChart() {
+      const data = buildPipelineData();
+      if (window.pipelineXAxis && window.pipelineSeries) {
+        window.pipelineXAxis.data.setAll(data);
+        window.pipelineSeries.data.setAll(data);
+      }
+    }
+
+    function updateSensitivityChart() {
+      if (!window.sensitivityXAxis || !window.sensitivityExposureSeries || !window.sensitivityRiskSeries) return;
+      const data = state.sectorData.length ? state.sectorData : [];
+      window.sensitivityXAxis.data.setAll(data);
+      window.sensitivityExposureSeries.data.setAll(data);
+      window.sensitivityRiskSeries.data.setAll(data);
+    }
+
+    function renderDashboard() {
+      runAiScoring();
+      renderTasks();
+      renderMeetings();
+      renderOpportunities();
+      renderCalendar();
+      renderAiLayer();
+      updateKpis();
+      updatePipelineChart();
+      updateSensitivityChart();
+    }
+
+    async function loadDashboard() {
+      state.accounts = [];
+      state.opps = [];
+      state.tasks = [];
+      state.appts = [];
+      state.aiScores = [];
+      state.sectorData = [];
+      await loadDataverseData();
+      renderDashboard();
+    }
+
+    document.querySelectorAll("#impactFilters .toggle-chip").forEach(function(chip) {
+      chip.addEventListener("click", function() {
+        document.querySelectorAll("#impactFilters .toggle-chip").forEach(function(x) { x.classList.remove("active"); });
+        chip.classList.add("active");
+        const filter = chip.getAttribute("data-filter");
+        document.querySelectorAll(".news-row").forEach(function(row) {
+          row.style.display = filter === "all" || row.getAttribute("data-type") === filter ? "grid" : "none";
+        });
+      });
+    });
+
+    am5.ready(function() {
+      let root1 = am5.Root.new("pipelineChart");
+      root1.setThemes([am5themes_Animated.new(root1)]);
+
+      let chart1 = root1.container.children.push(am5xy.XYChart.new(root1, {
+        panX: false,
+        panY: false,
+        wheelX: "none",
+        wheelY: "none",
+        paddingLeft: 0,
+        paddingRight: 10,
+        layout: root1.verticalLayout
+      }));
+
+      let xRenderer1 = am5xy.AxisRendererX.new(root1, { minGridDistance: 18, cellStartLocation: 0.2, cellEndLocation: 0.8 });
+      xRenderer1.labels.template.setAll({ fontSize: 11, fill: am5.color(0x64748b) });
+      xRenderer1.grid.template.setAll({ visible: false });
+      let xAxis1 = chart1.xAxes.push(am5xy.CategoryAxis.new(root1, {
+        categoryField: "stage",
+        renderer: xRenderer1
+      }));
+
+      let yRenderer1 = am5xy.AxisRendererY.new(root1, {});
+      yRenderer1.labels.template.setAll({ fontSize: 11, fill: am5.color(0x64748b) });
+      let yAxis1 = chart1.yAxes.push(am5xy.ValueAxis.new(root1, { renderer: yRenderer1 }));
+
+      window.pipelineSeries = chart1.series.push(am5xy.ColumnSeries.new(root1, {
+        name: "Pipeline",
+        xAxis: xAxis1,
+        yAxis: yAxis1,
+        valueYField: "value",
+        categoryXField: "stage",
+        tooltip: am5.Tooltip.new(root1, { labelText: "{categoryX}: AED {valueY}M" })
+      }));
+      window.pipelineXAxis = xAxis1;
+
+      window.pipelineSeries.columns.template.setAll({
+        cornerRadiusTL: 10,
+        cornerRadiusTR: 10,
+        strokeOpacity: 0,
+        width: am5.percent(72),
+        fillGradient: am5.LinearGradient.new(root1, {
+          rotation: 90,
+          stops: [
+            { color: am5.color(0x2563eb) },
+            { color: am5.color(0x0ea5e9) }
+          ]
+        })
+      });
+
+      xAxis1.data.setAll([]);
+      window.pipelineSeries.data.setAll([]);
+
+      let root2 = am5.Root.new("impactChart");
+      root2.setThemes([am5themes_Animated.new(root2)]);
+      let chart2 = root2.container.children.push(am5xy.XYChart.new(root2, {
+        panX: false,
+        panY: false,
+        wheelX: "none",
+        wheelY: "none",
+        paddingLeft: 0,
+        paddingRight: 0,
+        layout: root2.verticalLayout
+      }));
+
+      let xRenderer2 = am5xy.AxisRendererX.new(root2, { minGridDistance: 25 });
+      xRenderer2.labels.template.setAll({ fontSize: 11, fill: am5.color(0x64748b) });
+      let xAxis2 = chart2.xAxes.push(am5xy.CategoryAxis.new(root2, { categoryField: "month", renderer: xRenderer2 }));
+
+      let yRenderer2 = am5xy.AxisRendererY.new(root2, {});
+      yRenderer2.labels.template.setAll({ fontSize: 11, fill: am5.color(0x64748b) });
+      let yAxis2 = chart2.yAxes.push(am5xy.ValueAxis.new(root2, { renderer: yRenderer2 }));
+
+      let positiveSeries = chart2.series.push(am5xy.LineSeries.new(root2, {
+        name: "Positive Impact",
+        xAxis: xAxis2,
+        yAxis: yAxis2,
+        valueYField: "positive",
+        categoryXField: "month",
+        tooltip: am5.Tooltip.new(root2, { labelText: "Positive: AED {valueY}M" })
+      }));
+      positiveSeries.strokes.template.setAll({ strokeWidth: 3, stroke: am5.color(0x10b981) });
+      positiveSeries.fills.template.setAll({ fillOpacity: 0.12, fill: am5.color(0x10b981), visible: true });
+      positiveSeries.bullets.push(function() {
+        return am5.Bullet.new(root2, { sprite: am5.Circle.new(root2, { radius: 4, fill: am5.color(0x10b981) }) });
+      });
+
+      let negativeSeries = chart2.series.push(am5xy.LineSeries.new(root2, {
+        name: "Negative Impact",
+        xAxis: xAxis2,
+        yAxis: yAxis2,
+        valueYField: "negative",
+        categoryXField: "month",
+        tooltip: am5.Tooltip.new(root2, { labelText: "Negative: AED {valueY}M" })
+      }));
+      negativeSeries.strokes.template.setAll({ strokeWidth: 3, stroke: am5.color(0xef4444) });
+      negativeSeries.bullets.push(function() {
+        return am5.Bullet.new(root2, { sprite: am5.Circle.new(root2, { radius: 4, fill: am5.color(0xef4444) }) });
+      });
+
+      const impactData = [
+        { month: "Aug", positive: 1.2, negative: 0.4 },
+        { month: "Sep", positive: 1.8, negative: 0.5 },
+        { month: "Oct", positive: 1.4, negative: 0.7 },
+        { month: "Nov", positive: 2.1, negative: 0.6 },
+        { month: "Dec", positive: 2.5, negative: 0.8 },
+        { month: "Jan", positive: 2.2, negative: 0.9 }
+      ];
+
+      xAxis2.data.setAll(impactData);
+      positiveSeries.data.setAll(impactData);
+      negativeSeries.data.setAll(impactData);
+
+      let legend2 = chart2.children.push(am5.Legend.new(root2, {
+        centerX: am5.percent(50),
+        x: am5.percent(50)
+      }));
+      legend2.data.setAll([positiveSeries, negativeSeries]);
+
+      let root3 = am5.Root.new("sensitivityChart");
+      root3.setThemes([am5themes_Animated.new(root3)]);
+
+      let chart3 = root3.container.children.push(am5xy.XYChart.new(root3, {
+        panX: false,
+        panY: false,
+        wheelX: "none",
+        wheelY: "none",
+        layout: root3.verticalLayout
+      }));
+
+      let xRenderer3 = am5xy.AxisRendererX.new(root3, { minGridDistance: 30 });
+      xRenderer3.labels.template.setAll({ fontSize: 11, fill: am5.color(0x64748b) });
+      let xAxis3 = chart3.xAxes.push(am5xy.CategoryAxis.new(root3, {
+        categoryField: "sector",
+        renderer: xRenderer3
+      }));
+
+      let yRenderer3 = am5xy.AxisRendererY.new(root3, {});
+      yRenderer3.labels.template.setAll({ fontSize: 11, fill: am5.color(0x64748b) });
+      let yAxis3 = chart3.yAxes.push(am5xy.ValueAxis.new(root3, {
+        renderer: yRenderer3,
+        min: 0
+      }));
+
+      let yAxis4 = chart3.yAxes.push(am5xy.ValueAxis.new(root3, {
+        renderer: am5xy.AxisRendererY.new(root3, { opposite: true }),
+        min: 0,
+        max: 100,
+        strictMinMax: true
+      }));
+
+      window.sensitivityExposureSeries = chart3.series.push(am5xy.ColumnSeries.new(root3, {
+        name: "Exposure (AED M)",
+        xAxis: xAxis3,
+        yAxis: yAxis3,
+        valueYField: "exposure",
+        categoryXField: "sector",
+        tooltip: am5.Tooltip.new(root3, { labelText: "{categoryX}: AED {valueY}M exposure" })
+      }));
+
+      window.sensitivityExposureSeries.columns.template.setAll({
+        cornerRadiusTL: 10,
+        cornerRadiusTR: 10,
+        strokeOpacity: 0,
+        width: am5.percent(60),
+        fillGradient: am5.LinearGradient.new(root3, {
+          rotation: 90,
+          stops: [
+            { color: am5.color(0x2563eb) },
+            { color: am5.color(0x0ea5e9) }
+          ]
+        })
+      });
+
+      window.sensitivityRiskSeries = chart3.series.push(am5xy.LineSeries.new(root3, {
+        name: "AI Risk Score",
+        xAxis: xAxis3,
+        yAxis: yAxis4,
+        valueYField: "risk",
+        categoryXField: "sector",
+        tooltip: am5.Tooltip.new(root3, { labelText: "{categoryX}: {valueY}/100 AI risk" })
+      }));
+
+      window.sensitivityRiskSeries.strokes.template.setAll({
+        strokeWidth: 3,
+        stroke: am5.color(0xef4444)
+      });
+
+      window.sensitivityRiskSeries.bullets.push(function() {
+        return am5.Bullet.new(root3, {
+          sprite: am5.Circle.new(root3, {
+            radius: 4,
+            fill: am5.color(0xef4444)
+          })
+        });
+      });
+
+      window.sensitivityXAxis = xAxis3;
+      xAxis3.data.setAll([]);
+      window.sensitivityExposureSeries.data.setAll([]);
+      window.sensitivityRiskSeries.data.setAll([]);
+
+      let legend3 = chart3.children.push(am5.Legend.new(root3, {
+        centerX: am5.percent(50),
+        x: am5.percent(50)
+      }));
+      legend3.data.setAll([window.sensitivityExposureSeries, window.sensitivityRiskSeries]);
+
+      loadDashboard();
+    });
+  </script>
+</body>
+</html>
